@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:module3/network/api_constants.dart';
 import 'package:module3/resources/dimens.dart';
 import 'package:module3/widgets/play_button_view.dart';
 import 'package:module3/widgets/title_text.dart';
 
 class ShowCaseView extends StatelessWidget {
+  final String imageNetwork;
+  final String movieTitle;
+  final String releaseDate;
+
+  ShowCaseView({
+    required this.imageNetwork,
+    required this.movieTitle,
+    required this.releaseDate
+});
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -14,7 +26,7 @@ class ShowCaseView extends StatelessWidget {
           children: [
             Positioned.fill(
               child: Image.network(
-                "https://media2.fdncms.com/inlander/imager/mild-mutant/u/original/2189500/art19539.jpg",
+                "$IMAGE_BASE_URL$imageNetwork",
                 fit: BoxFit.cover,
               ),
             ),
@@ -29,9 +41,9 @@ class ShowCaseView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children:  [
                     Text(
-                      "Passengers",
+                      movieTitle,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: TEXT_REGULAR_3X,
@@ -39,7 +51,7 @@ class ShowCaseView extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: MARGIN_MEDIUM),
-                    TitleText("15 December 2016"),
+                    TitleText(releaseDate),
                   ],
                 ),
               ),

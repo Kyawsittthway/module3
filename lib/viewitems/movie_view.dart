@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:module3/network/api_constants.dart';
 
+import '../data.vos/vos/movie_vo.dart';
 import '../resources/dimens.dart';
 import '../widgets/rating_view.dart';
 
 class MovieView extends StatelessWidget {
-  final Function  onTapMovie;
-
-  MovieView(this.onTapMovie);
+  final Function(int) onTapMovie;
+  final MovieVO mMovie;
+  MovieView(this.onTapMovie, this.mMovie);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,19 +20,19 @@ class MovieView extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: (){
-              onTapMovie();
+              onTapMovie(mMovie.id);
             },
             child: Image.network(
-              "https://media2.fdncms.com/inlander/imager/mild-mutant/u/original/2189500/art19539.jpg",
-              height: 200,
+              "$IMAGE_BASE_URL${mMovie.posterPath}",
+              height: 180,
               fit: BoxFit.cover,
             ),
           ),
           const SizedBox(
             height: MARGIN_MEDIUM,
           ),
-          const Text(
-            "West World",
+           Text(
+            mMovie.title,
             style: TextStyle(
               color: Colors.white,
               fontSize: TEXT_REGULAR_2X,

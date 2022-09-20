@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:module3/data.vos/vos/base_actor_vo.dart';
+import 'package:module3/network/api_constants.dart';
 import 'package:module3/resources/colors.dart';
 
+import '../data.vos/vos/actor_vo.dart';
 import '../resources/dimens.dart';
 
 class ActorView extends StatelessWidget {
+  final BaseActorVO actor;
+  ActorView({
+ required this.actor
+
+});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -12,7 +20,7 @@ class ActorView extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: ActorImageView(),
+            child: ActorImageView(actorImage: "$IMAGE_BASE_URL${actor.profilePath}",),
           ),
           Padding(
             padding: const EdgeInsets.all(MARGIN_MEDIUM),
@@ -23,7 +31,8 @@ class ActorView extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: ActorNameAndLikeView(),
+            child: ActorNameAndLikeView(actorName: actor.name,like: "13 likes"
+              ,),
           )
         ],
       ),
@@ -32,14 +41,14 @@ class ActorView extends StatelessWidget {
 }
 
 class ActorImageView extends StatelessWidget {
-  const ActorImageView({
-    Key? key,
-  }) : super(key: key);
-
+   ActorImageView({
+   required this.actorImage
+  });
+  final String actorImage;
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/nCJJ3NVksYNxIzEHcyC1XziwPVj.jpg",
+    "$IMAGE_BASE_URL$actorImage",
       fit: BoxFit.cover,
     );
   }
@@ -60,10 +69,12 @@ class FavoriteButtonView extends StatelessWidget {
 }
 
 class ActorNameAndLikeView extends StatelessWidget {
-  const ActorNameAndLikeView({
-    Key? key,
-  }) : super(key: key);
-
+   ActorNameAndLikeView({
+    required this.actorName,
+     required this.like
+  });
+  final String actorName;
+  final String like;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -76,7 +87,7 @@ class ActorNameAndLikeView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Samuel L Jackson",
+            actorName,
             style: TextStyle(
               color: Colors.white,
               fontSize: TEXT_REGULAR,

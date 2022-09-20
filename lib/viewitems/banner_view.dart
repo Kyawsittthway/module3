@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:module3/network/api_constants.dart';
 import 'package:module3/resources/colors.dart';
 import 'package:module3/resources/dimens.dart';
 
+import '../data.vos/vos/movie_vo.dart';
 import '../widgets/gradient_view.dart';
 import '../widgets/play_button_view.dart';
 
 class BannerView extends StatelessWidget {
+  final MovieVO mMovie;
+  BannerView({required this.mMovie});
   @override
   Widget build(BuildContext context) {
     return Stack(
       children:  [
         Positioned.fill(
-          child: BannerImageView(),
+          child: BannerImageView(mImageUrl: "$IMAGE_BASE_URL${mMovie.posterPath}",),
         ),
         Positioned.fill(
           child: GradientView(),
         ),
         Align(
           alignment: Alignment.bottomLeft,
-          child: BannerTitleView(),
+          child: BannerTitleView(title: mMovie.title,),
         ),
         Align(
           alignment: Alignment.center,
@@ -33,9 +37,9 @@ class BannerView extends StatelessWidget {
 
 
 class BannerTitleView extends StatelessWidget {
-  const BannerTitleView({
-    Key? key,
-  }) : super(key: key);
+ final String title;
+
+ BannerTitleView({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +48,9 @@ class BannerTitleView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children:  [
           Text(
-            "The Wolverine 2013",
+            title,
             style: TextStyle(
                 color: Colors.white,
                 fontSize: TEXT_HEADING_1x,
@@ -66,14 +70,14 @@ class BannerTitleView extends StatelessWidget {
 }
 
 class BannerImageView extends StatelessWidget {
-  const BannerImageView({
-    Key? key,
-  }) : super(key: key);
 
+final String mImageUrl;
+
+BannerImageView({required this.mImageUrl});
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://media2.fdncms.com/inlander/imager/mild-mutant/u/original/2189500/art19539.jpg",
+      mImageUrl,
       fit: BoxFit.fill,
     );
   }
