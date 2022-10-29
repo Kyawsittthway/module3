@@ -1,6 +1,7 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:module3/blocs/home_bloc.dart';
 import 'package:module3/pages/movie_details_page.dart';
 import 'package:module3/resources/colors.dart';
 import 'package:module3/resources/dimens.dart';
@@ -10,10 +11,8 @@ import 'package:module3/viewitems/showcase_view.dart';
 import 'package:module3/widgets/see_more_text.dart';
 import 'package:module3/widgets/title_text.dart';
 import 'package:module3/widgets/title_text_with_see_more_view.dart';
-import 'package:scoped_model/scoped_model.dart';
-import '';
+import 'package:provider/provider.dart';
 
-import '../data.vos/models/movie_model_impl.dart';
 import '../data.vos/vos/actor_vo.dart';
 import '../data.vos/vos/genre_vo.dart';
 import '../data.vos/vos/movie_vo.dart';
@@ -23,103 +22,105 @@ import '../widgets/actors_and_creators_section_view.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: PRIMARY_COLOR,
-          title: const Text(
-            MAIN_SCREEN_APP_BAR_TITLE,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
+    return ChangeNotifierProvider(
+      create: (context) => HomeBloc(),
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: PRIMARY_COLOR,
+            title: const Text(
+              MAIN_SCREEN_APP_BAR_TITLE,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+              ),
             ),
+            leading: const Icon(Icons.menu),
+            actions: const [
+              Padding(
+                  padding: EdgeInsets.only(
+                      top: 0, left: 0, bottom: 0, right: MARGIN_MEDIUM_2),
+                  child: Icon(Icons.search)),
+            ],
           ),
-          leading: const Icon(Icons.menu),
-          actions: const [
-            Padding(
-                padding: EdgeInsets.only(
-                    top: 0, left: 0, bottom: 0, right: MARGIN_MEDIUM_2),
-                child: Icon(Icons.search)),
-          ],
-        ),
-        body: Container(
-          color: HOME_SCREEN_BACKGROUND_COLOR,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ScopedModelDescendant<MovieModelImpl>(
-                  builder: (BuildContext context, Widget child,
-                      MovieModelImpl model) {
-                    return BannerSectionView(
-                      mPopularMovies:
-                      model.mPopularMoviesList.take(8).toList() ?? [],
-                    );
-                  },
-                ),
-                SizedBox(height: MARGIN_LARGE),
-                ScopedModelDescendant<MovieModelImpl>(
-                  builder: (BuildContext context, Widget child,
-                      MovieModelImpl model) {
-                    return BestPopularMovieAndSerialSectionView(
-                          (movieId) =>
-                          _navigateToMovieDetailsScreen(context,model.mActors, movieId,model),
-                      model.mNowPlayingMovieList,
-                    );
-                  },
-                  // child: BestPopularMovieAndSerialSectionView(
-                  //     (movieId) => _navigateToMovieDetailsScreen(
-                  //         context, mActors, movieId),
-                  //     mNowPlayingMovieList),
-                ),
-                SizedBox(height: MARGIN_LARGE),
-                CheckMovieShowTimeSectionView(),
-                SizedBox(height: MARGIN_LARGE),
-                ScopedModelDescendant<MovieModelImpl>(
-                  builder: (BuildContext context, Widget child, MovieModelImpl model){
-                    return GenreSectionView(
-                      genreList: model.mGenreList,
-                      movieListByGenre: model.mMoviesByGenreList,
-                      onTapMovie: (movieId) =>
-                          _navigateToMovieDetailsScreen(context, model.mActors, movieId,model),
-                      onTapGenre: (genreId) => model.mMoviesByGenreList,
-                    );
-                  },
-                ),
-                SizedBox(height: MARGIN_LARGE),
-                ScopedModelDescendant<MovieModelImpl>(
-                  builder: (BuildContext context, Widget child, MovieModelImpl model){
-                    return  ShowcasesSection(
-                      showcaseMovieList: model.mShowCaseMovieList,
-                    );
-                  },
-
-                ),
-                SizedBox(height: MARGIN_LARGE),
-                ScopedModelDescendant<MovieModelImpl>(
-                  builder: (BuildContext context, Widget child, MovieModelImpl model){
-                    return  ActorsAndCreatorsSectionView(
-                        BEST_ACTOR_TITLE, BEST_ACTOR_SEE_MORE, model.mActors);
-                  },
-                ),
-                SizedBox(height: MARGIN_LARGE),
-              ],
+          body: Container(
+            color: HOME_SCREEN_BACKGROUND_COLOR,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Selector<HomeBloc, List<MovieVO>>(
+                    selector: (context, bloc) => bloc.mShowCaseMovieList,
+                    builder: (context, showcaseMovieList, child) =>
+                        BannerSectionView(
+                      mPopularMovies: showcaseMovieList.take(8).toList() ?? [],
+                    ),
+                  ),
+                  SizedBox(height: MARGIN_LARGE),
+                  Selector<HomeBloc, List<MovieVO>>(
+                    selector: (context, bloc) => bloc.mPopularMoviesList,
+                    builder: (context, popularMovieList, child) =>
+                        BestPopularMovieAndSerialSectionView(
+                      (movieId) =>
+                          _navigateToMovieDetailsScreen(context, movieId),
+                      popularMovieList,
+                    ),
+                    // child: BestPopularMovieAndSerialSectionView(
+                    //     (movieId) => _navigateToMovieDetailsScreen(
+                    //         context, mActors, movieId),
+                    //     mNowPlayingMovieList),
+                  ),
+                  SizedBox(height: MARGIN_LARGE),
+                  CheckMovieShowTimeSectionView(),
+                  SizedBox(height: MARGIN_LARGE),
+                  Selector<HomeBloc, List<GenreVO>>(
+                    selector: (context, bloc) => bloc.mGenreList,
+                    builder: (context, genreList, child) =>
+                        Selector<HomeBloc, List<MovieVO>>(
+                      selector: (context, bloc) => bloc.mMoviesByGenreList,
+                      builder: (context, moviesByGenreList, chiild) =>
+                          GenreSectionView(
+                              genreList: genreList,
+                              movieListByGenre: moviesByGenreList,
+                              onTapMovie: (movieId) =>
+                                  _navigateToMovieDetailsScreen(
+                                      context, movieId),
+                              onTapGenre: (genreId) {
+                                HomeBloc bloc = Provider.of<HomeBloc>(context,
+                                    listen: false);
+                                bloc.getMoviesByGenreAndRefresh(genreId);
+                              }),
+                    ),
+                  ),
+                  SizedBox(height: MARGIN_LARGE),
+                  Selector<HomeBloc, List<MovieVO>>(
+                    selector: (context, bloc) => bloc.mShowCaseMovieList,
+                    builder: (context, showCaseMovieList, child) =>
+                        ShowcasesSection(
+                      showcaseMovieList: showCaseMovieList,
+                    ),
+                  ),
+                  SizedBox(height: MARGIN_LARGE),
+                  Selector<HomeBloc, List<ActorVO>>(
+                    selector: (context, bloc) => bloc.mActors,
+                    builder: (context, actorList, child) =>
+                        ActorsAndCreatorsSectionView(
+                            BEST_ACTOR_TITLE, BEST_ACTOR_SEE_MORE, actorList),
+                  ),
+                  SizedBox(height: MARGIN_LARGE),
+                ],
+              ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 
-  void _navigateToMovieDetailsScreen(
-      BuildContext context, List<ActorVO> actors, int movieId,MovieModelImpl model) {
-    model.getMovieDetails(movieId);
-    model.getMovieDetailsFromDatabase(movieId);
-    model.getCreditsByMovie(movieId);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                MovieDetailsPage()));
+  void _navigateToMovieDetailsScreen(BuildContext context, int movieId) {
+    // model.getMovieDetails(movieId);
+    // model.getMovieDetailsFromDatabase(movieId);
+    // model.getCreditsByMovie(movieId);
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MovieDetailsPage(movieId)));
   }
 }
-
 
 class CheckMovieShowTimeSectionView extends StatelessWidget {
   const CheckMovieShowTimeSectionView({
