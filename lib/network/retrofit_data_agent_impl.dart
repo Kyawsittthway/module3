@@ -5,6 +5,7 @@ import 'package:module3/data.vos/vos/genre_vo.dart';
 import 'package:module3/network/api_constants.dart';
 import 'package:module3/network/movie_data_agent.dart';
 import 'package:module3/network/the_movie_api.dart';
+import 'package:retrofit/dio.dart';
 
 import '../data.vos/vos/actor_vo.dart';
 import '../data.vos/vos/credit_vo.dart';

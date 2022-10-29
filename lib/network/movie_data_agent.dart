@@ -3,6 +3,7 @@
 import 'package:module3/data.vos/vos/actor_vo.dart';
 import 'package:module3/data.vos/vos/credit_vo.dart';
 import 'package:module3/data.vos/vos/genre_vo.dart';
+import 'package:retrofit/dio.dart';
 
 import '../data.vos/vos/movie_vo.dart';
 

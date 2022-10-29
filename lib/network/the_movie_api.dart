@@ -6,6 +6,7 @@ import 'package:module3/network/responses/get_credits_by_movie_response.dart';
 import 'package:module3/network/responses/get_genres_response.dart';
 import 'package:module3/network/responses/movie_list_response.dart';
 import 'package:module3/network/responses/movies_by_genres_response.dart';
+import 'package:retrofit/dio.dart';
 import 'package:retrofit/http.dart';
 
 import '../data.vos/vos/movie_vo.dart';

@@ -5,136 +5,105 @@ import 'package:module3/resources/colors.dart';
 import 'package:module3/resources/strings.dart';
 import 'package:module3/widgets/actors_and_creators_section_view.dart';
 import 'package:module3/widgets/gradient_view.dart';
-
-import '../data.vos/models/movie_model.dart';
+import 'package:scoped_model/scoped_model.dart';
 import '../data.vos/vos/actor_vo.dart';
-import '../data.vos/vos/credit_vo.dart';
 import '../data.vos/vos/movie_vo.dart';
 import '../resources/dimens.dart';
 import '../widgets/rating_view.dart';
 import '../widgets/title_text.dart';
 
-class MovieDetailsPage extends StatefulWidget {
-  final List<ActorVO> actorList;
-  final int movieId;
-  MovieDetailsPage({
-    required this.actorList,
-    required this.movieId
-});
-
-  @override
-  State<MovieDetailsPage> createState() => _MovieDetailsPageState();
-}
-
-class _MovieDetailsPageState extends State<MovieDetailsPage> {
- // List<String> genreList = ["Action", "Comedy", "Drama"];
-  MovieModel mMovieModel = MovieModelImpl();
-    MovieVO? mMovie;
-
-   List<CreditVO>? mActorsList;
-   List<CreditVO>? mCreatorList;
-  @override
-  void initState(){
-    super.initState();
-
-    mMovieModel.getMovieDetails(widget.movieId).then((movie){
-      setState(() {
-        this.mMovie = movie;
-      });
-    });
-
-    mMovieModel.getCreditsByMovie(widget.movieId).then((creditList){
-      setState(() {
-        this.mActorsList = creditList.where((credit)=>credit.isActor()).toList();
-        this.mCreatorList = creditList.where((credit)=>credit.isCreator()).toList();
-      });
-    });
-  }
-
-  @override
+class MovieDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: HOME_SCREEN_BACKGROUND_COLOR,
-        child: (mMovie!=null) ? CustomScrollView(
-          slivers: [
-            MovieDetailSliverAppbarView(
-                ()=>Navigator.pop(context),mMovie!
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                  child: TrailerSection(mMovie!),
+      body: ScopedModelDescendant<MovieModelImpl>(
+        builder: (BuildContext context, Widget child,MovieModelImpl model){
+          return Container(
+            color: HOME_SCREEN_BACKGROUND_COLOR,
+            child: (model.mMovie!=null) ? CustomScrollView(
+              slivers: [
+                MovieDetailSliverAppbarView(
+                        ()=>Navigator.pop(context),model.mMovie!
                 ),
-                SizedBox(
-                  height: MARGIN_LARGE,
-                ),
-                ActorsAndCreatorsSectionView(
-                BEST_ACTOR_TITLE,
-                  BEST_ACTOR_SEE_MORE,
-                  mActorsList!,
-                  seeMoreButtonVisibility: false,
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                      child: TrailerSection(model.mMovie! ),
+                    ),
+                    SizedBox(
+                      height: MARGIN_LARGE,
+                    ),
+                    ActorsAndCreatorsSectionView(
+                      BEST_ACTOR_TITLE,
+                      BEST_ACTOR_SEE_MORE,
+                      model.mActorsList ?? [],
+                      seeMoreButtonVisibility: false,
 
 
-                ),
-                SizedBox(
-                  height: MARGIN_LARGE,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TitleText("ABOUT FILM"),
-                      AboutFilmnInfoView(
-                          "Original Title:", "${mMovie?.title}"),
-                      SizedBox(
-                        height: MARGIN_MEDIUM_2,
+                    ),
+                    SizedBox(
+                      height: MARGIN_LARGE,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TitleText("ABOUT FILM"),
+                          AboutFilmnInfoView(
+                              "Original Title:", "${model.mMovie?.title}"),
+                          SizedBox(
+                            height: MARGIN_MEDIUM_2,
+                          ),
+                          AboutFilmnInfoView("Type", model.mMovie?.genres?.map((genres) =>genres.name).join(",")),
+                          SizedBox(
+                            height: MARGIN_MEDIUM_2,
+                          ),
+                          AboutFilmnInfoView(
+                            "Production:",
+                            "${model.mMovie?.productionCompanies?.map((e) => e.name).join(",")}",
+                          ),
+                          SizedBox(
+                            height: MARGIN_MEDIUM_2,
+                          ),
+                          AboutFilmnInfoView(
+                            "Premiere:",
+                            "${model.mMovie?.releaseDate}",
+                          ),
+                          SizedBox(
+                            height: MARGIN_MEDIUM_2,
+                          ),
+                          AboutFilmnInfoView(
+                              "Description:",
+                              "${model.mMovie?.overview}"
+                          )
+                        ],
                       ),
-                      AboutFilmnInfoView("Type", mMovie!.genres!.map((genres) =>genres.name ).join(",")),
-                      SizedBox(
-                        height: MARGIN_MEDIUM_2,
-                      ),
-                      AboutFilmnInfoView(
-                        "Production:",
-                        "${mMovie!.productionCompanies!.map((e) => e.name).join(",")}",
-                      ),
-                      SizedBox(
-                        height: MARGIN_MEDIUM_2,
-                      ),
-                      AboutFilmnInfoView(
-                        "Premiere:",
-                        "${mMovie?.releaseDate}",
-                      ),
-                      SizedBox(
-                        height: MARGIN_MEDIUM_2,
-                      ),
-                      AboutFilmnInfoView(
-                        "Description:",
-                       "${mMovie?.overview}"
-                      )
-                    ],
-                  ),
-                ),
-                ActorsAndCreatorsSectionView(
-                 CREATOR_TITLE,
-                  "",
-                  mCreatorList!,
-                  seeMoreButtonVisibility: false,
-                ),
-              ]),
-            )
-          ],
-        ) : Center(child: CircularProgressIndicator()),
+                    ),
+                    ActorsAndCreatorsSectionView(
+                      CREATOR_TITLE,
+                      "",
+                      model.mCreatorList ?? [],
+                      seeMoreButtonVisibility: false,
+                    ),
+                  ]),
+                )
+              ],
+            ) : Center(child: CircularProgressIndicator()),
+          );
+        },
+
       ),
     );
   }
+
 }
+
+
 
 class AboutFilmnInfoView extends StatelessWidget {
   final String label;
-  final String desccription;
+  final String? desccription;
 
   AboutFilmnInfoView(this.label, this.desccription);
 
@@ -157,7 +126,7 @@ class AboutFilmnInfoView extends StatelessWidget {
         SizedBox(width: MARGIN_CARD_MEDIUM_2),
         Expanded(
           child: Text(
-            desccription,
+            desccription ?? "",
             style: TextStyle(
               color: Colors.white,
               fontSize: MARGIN_MEDIUM_2,

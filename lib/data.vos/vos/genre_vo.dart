@@ -1,14 +1,20 @@
 
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:module3/persistence/daos/hive_constants.dart';
 
 part 'genre_vo.g.dart';
+
 @JsonSerializable()
+@HiveType(typeId: HIVE_TYPE_ID_GENRE_VO,adapterName: "GenreVOAdapter")
 class GenreVO{
 
   @JsonKey(name: "id")
+  @HiveField(0)
   int id;
 
   @JsonKey(name:"name")
+  @HiveField(1)
   String name;
 
   GenreVO({required this.id,required this.name});
