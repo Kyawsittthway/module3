@@ -83,7 +83,7 @@ class MovieDetailsPage extends StatelessWidget {
                     ActorsAndCreatorsSectionView(
                       CREATOR_TITLE,
                       "",
-                      model.mCreatorList ?? [],
+                      model.mCreatorsList ?? [],
                       seeMoreButtonVisibility: false,
                     ),
                   ]),

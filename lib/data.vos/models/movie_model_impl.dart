@@ -32,7 +32,6 @@ class MovieModelImpl extends MovieModel{
   getPopularMoviesFromDatabase();
   getActors(1);
   getAllActorsFromDatabase();
-  getGenres();
   getGenresFromDatabase();
   }
 
@@ -49,11 +48,10 @@ class MovieModelImpl extends MovieModel{
   List<MovieVO>mShowCaseMovieList=[];
   List<MovieVO>mMoviesByGenreList=[];
 
-  ///Movie detail state
+  ///Movie Detail
   MovieVO? mMovie;
-
-  List<CreditVO>? mActorsList;
-  List<CreditVO>? mCreatorList;
+  List<CreditVO> mActorsList = [];
+  List<CreditVO> mCreatorsList = [];
 
 
   //Network
@@ -124,8 +122,8 @@ void getMoviesByGenre(int genreId) {
   }
 
   @override
-  void getActors(int page) {
-     mDataAgent.getActors(page).then((actors) async{
+  Future<List<ActorVO>> getActors(int page) {
+    return mDataAgent.getActors(page).then((actors) async{
       mActorDao.saveAllActors(actors);
       mActors = actors;
       notifyListeners();
@@ -133,26 +131,31 @@ void getMoviesByGenre(int genreId) {
     });
   }
 
+  // @override
+  // Future<List<CreditVO>> getCreditsByMovie(int movieId) {
+  //   return mDataAgent.getCreditsByMovie(movieId);
+  // }
+
   @override
- getCreditsByMovie(int movieId) {
-     mDataAgent.getCreditsByMovie(movieId).then((creditList){
-       this.mActorsList = creditList.where((credit)=>credit.isActor()).toList();
-       this.mCreatorList = creditList.where((credit)=>credit.isCreator()).toList();
-       notifyListeners();
-     });
+  void getCreditsByMovie(int movieId) {
+    mDataAgent.getCreditsByMovie(movieId).then((creditsByMovie){
+      mCreatorsList = creditsByMovie.where((credit) => credit.isCreator() == true).toList();
+      mActorsList = creditsByMovie.where((credit) => credit.isActor() == true).toList();
+      notifyListeners();
+    });
   }
 
   @override
- void getMovieDetails(int movieId) {
+  Future<MovieVO> getMovieDetails(int movieId) {
 
-     mDataAgent.getMovieDetails(movieId).then((movie) {
-      getMovieDetailsFromDatabase(movieId);
+    return mDataAgent.getMovieDetails(movieId).then((movie) async{
+
 
       movie.isTopRated = mMovie?.isTopRated ?? false;
       movie.isPopular = mMovie?.isPopular ?? false;
       movie.isNowPlaying = mMovie?.isNowPlaying ?? false;
       mMovieDao.saveSingleMovie(movie);
-      notifyListeners();
+      return Future.value(movie);
     });
   }
 
@@ -170,10 +173,15 @@ void getMoviesByGenre(int genreId) {
     notifyListeners();
   }
 
+  // @override
+  // Future<MovieVO> getMovieDetailsFromDatabase(int movieId) {
+  //   return Future.value(mMovieDao.getMovieById(movieId));
+  // }
+
   @override
  void getMovieDetailsFromDatabase(int movieId) {
-     mMovie = mMovieDao.getMovieById(movieId);
-     notifyListeners();
+    mMovie = mMovieDao.getMovieById(movieId);
+    notifyListeners();
   }
 
   @override

@@ -11,10 +11,9 @@ import '../vos/movie_vo.dart';
 abstract class MovieModel extends Model{
   // Network
   void getNowPlayingMovies(int page);
+  void getGenres();
   void getPopularMovies(int page);
   void getTopRatedMovies(int page);
-
-  void getGenres();
   void getMoviesByGenre(int genreId);
   void getActors(int page);
   void getMovieDetails(int movieId);
