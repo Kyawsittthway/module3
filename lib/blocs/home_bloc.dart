@@ -17,33 +17,45 @@ class HomeBloc extends ChangeNotifier{
   List<MovieVO>mShowCaseMovieList=[];
   List<MovieVO>mMoviesByGenreList=[];
 
+  ///Page
+  int pageForNowPlayingMovies = 1;
+
   ///Model
   MovieModel mMovieModel = MovieModelImpl();
 
-  HomeBloc(){
-
+  HomeBloc([MovieModel? movieModel]){
+    ///Set Mock Model For Test Data
+    if(movieModel != null){
+      mMovieModel = movieModel;
+    }
     /// Now Playing Movies Database
-    mMovieModel.getNowPlayingMoviesFromDatabase().then((movieList){
+    mMovieModel.getNowPlayingMoviesFromDatabase().listen((movieList){
       print("this is getting triggered!");
      mNowPlayingMovieList = movieList;
+     if(mNowPlayingMovieList?.isNotEmpty ?? false){
+       mNowPlayingMovieList?.sort((a,b)=> a.id - b.id);
+     }
+      // print("Now Playing Movies Database :: ${mNowPlayingMovieList}");
      notifyListeners();
-    }).catchError((error){
+    }).onError((error){
       print("Error from getNowPlayingMoviesFromDatabase :: " + error.toString());
     });
 
     /// Popular Movies Database
-    mMovieModel.getPopularMoviesFromDatabase().then((movieList){
+    mMovieModel.getPopularMoviesFromDatabase().listen((movieList){
       mPopularMoviesList = movieList;
+      // print("Popular Movies Database :: ${mPopularMoviesList}");
       notifyListeners();
-    }).catchError((error){
+    }).onError((error){
       print("Error from getPopularMoviesFromDatabase :: " + error.toString());
     });
 
     /// Top Rated Movies Database
-    mMovieModel.getTopRatedMoviesFromDatabase().then((movieList){
+    mMovieModel.getTopRatedMoviesFromDatabase().listen((movieList){
       mShowCaseMovieList = movieList;
+      // print("Top Rated Movies Database :: ${mShowCaseMovieList}");
       notifyListeners();
-    }).catchError((error){
+    }).onError((error){
       print("Error from getTopRatedMoviesFromDatabase :: " +error.toString());
     });
 
@@ -54,7 +66,9 @@ class HomeBloc extends ChangeNotifier{
       mGenreList = genres;
 
       ///Movies by Genres
-      getMoviesByGenreAndRefresh(mGenreList.first.id);
+      if(mGenreList?.isNotEmpty ?? false){
+        getMoviesByGenreAndRefresh(mGenreList.first.id ?? 0);
+      }
     }).catchError((error){
       print("Error from _getMoviesByGenreAndRefresh :: " +error.toString());
     });
@@ -95,6 +109,11 @@ class HomeBloc extends ChangeNotifier{
     }).catchError((error){
       print("Error from _getMoviesByGenreAndRefresh :: " +error.toString());
     });
+  }
+
+  void onNowPlayingMovieListEndReached(){
+    this.pageForNowPlayingMovies += 1;
+    mMovieModel.getPopularMovies(pageForNowPlayingMovies);
   }
 
 

@@ -7,6 +7,7 @@ import 'package:module3/resources/colors.dart';
 import 'package:module3/resources/strings.dart';
 import 'package:module3/widgets/actors_and_creators_section_view.dart';
 import 'package:module3/widgets/gradient_view.dart';
+import 'package:module3/widgets/title_and_horizontal_movie_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../data.vos/vos/actor_vo.dart';
@@ -23,99 +24,119 @@ class MovieDetailsPage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create:(context)=>MovieDetailsBloc(movieId),
-      child: Scaffold(
-        body: Selector<MovieDetailsBloc,MovieVO?>(
-          selector: (context,bloc)=>bloc.mMovie,
-          builder: (context,movie,child) => Container(
-              color: HOME_SCREEN_BACKGROUND_COLOR,
-              child: (movie!=null) ? CustomScrollView(
-                slivers: [
-                  MovieDetailSliverAppbarView(
-                          ()=>Navigator.pop(context),movie!
+        create: (context) => MovieDetailsBloc(movieId),
+        child: Scaffold(
+          body: Selector<MovieDetailsBloc, MovieVO?>(
+              selector: (context, bloc) => bloc.mMovie,
+              builder: (context, movie, child) =>
+                  Container(
+                      color: HOME_SCREEN_BACKGROUND_COLOR,
+                      child: (movie != null) ? CustomScrollView(
+                          slivers: [
+                          MovieDetailSliverAppbarView(
+                          () => Navigator.pop(context), movie!
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+            Container(
+            margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+            child: TrailerSection(movie!),
+          ),
+          SizedBox(
+            height: MARGIN_LARGE,
+          ),
+          Selector<MovieDetailsBloc, List<CreditVO>>(
+            selector: (context, bloc) => bloc.mActorsList,
+            builder: (context, actorList, child) =>
+                ActorsAndCreatorsSectionView(
+                  BEST_ACTOR_TITLE,
+                  BEST_ACTOR_SEE_MORE,
+                  actorList ?? [],
+                  seeMoreButtonVisibility: false,
+
+
+                ),
+          ),
+          SizedBox(
+            height: MARGIN_LARGE,
+          ),
+          Selector<MovieDetailsBloc, List<MovieVO>?>(
+              selector: (context, bloc) => bloc.mRelatedMoviesList,
+              builder: (context, relatedMovieList, child) =>
+                  TitleAndHorizontalMovieListView(
+                        (movieId) =>
+                        _navigateToMovieDetailsScreen(context, movieId),
+                    relatedMovieList ?? [], onListEndReached: (){}, title: MOVIE_DETAIL_RELATED_MOVIE,),
                   ),
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                        child: TrailerSection(movie! ),
-                      ),
-                      SizedBox(
-                        height: MARGIN_LARGE,
-                      ),
-                      Selector<MovieDetailsBloc,List<CreditVO>>(
-                        selector: (context,bloc)=>bloc.mActorsList,
-                        builder:(context,actorList,child)=>ActorsAndCreatorsSectionView(
-                          BEST_ACTOR_TITLE,
-                          BEST_ACTOR_SEE_MORE,
-                          actorList ?? [],
-                          seeMoreButtonVisibility: false,
+              // child: BestPopularMovieAndSerialSectionView(
+              //     (movieId) => _navigateToMovieDetailsScreen(
+              //         context, mActors, movieId),
+              //     mNowPlayingMovieList),
 
-
-                        ),
-                      ),
-                      SizedBox(
-                        height: MARGIN_LARGE,
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TitleText("ABOUT FILM"),
-                            AboutFilmnInfoView(
-                                "Original Title:", "${movie.title}"),
-                            SizedBox(
-                              height: MARGIN_MEDIUM_2,
-                            ),
-                            AboutFilmnInfoView("Type", movie.genres?.map((genres) =>genres.name).join(",")),
-                            SizedBox(
-                              height: MARGIN_MEDIUM_2,
-                            ),
-                            AboutFilmnInfoView(
-                              "Production:",
-                              "${movie.productionCompanies?.map((e) => e.name).join(",")}",
-                            ),
-                            SizedBox(
-                              height: MARGIN_MEDIUM_2,
-                            ),
-                            AboutFilmnInfoView(
-                              "Premiere:",
-                              "${movie.releaseDate}",
-                            ),
-                            SizedBox(
-                              height: MARGIN_MEDIUM_2,
-                            ),
-                            AboutFilmnInfoView(
-                                "Description:",
-                                "${movie.overview}"
-                            )
-                          ],
-                        ),
-                      ),
-                      Selector<MovieDetailsBloc,List<CreditVO>>(
-                        selector: (context,bloc)=>bloc.mCreatorList,
-                        builder: (context,creatorList,chid)=>ActorsAndCreatorsSectionView(
-                          CREATOR_TITLE,
-                          "",
-                          creatorList ?? [],
-                          seeMoreButtonVisibility: false,
-                        ),
-                      ),
-                    ]),
-                  )
-                ],
-              ) : Center(child: CircularProgressIndicator()),
-            ),
-
-
+              Container(
+              padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TitleText("ABOUT FILM"),
+              AboutFilmnInfoView(
+                  "Original Title:", "${movie.title}"),
+              SizedBox(
+                height: MARGIN_MEDIUM_2,
+              ),
+              AboutFilmnInfoView(
+                  "Type", movie.genres?.map((genres) => genres.name).join(",")),
+              SizedBox(
+                height: MARGIN_MEDIUM_2,
+              ),
+              AboutFilmnInfoView(
+                "Production:",
+                "${movie.productionCompanies?.map((e) => e.name).join(",")}",
+              ),
+              SizedBox(
+                height: MARGIN_MEDIUM_2,
+              ),
+              AboutFilmnInfoView(
+                "Premiere:",
+                "${movie.releaseDate}",
+              ),
+              SizedBox(
+                height: MARGIN_MEDIUM_2,
+              ),
+              AboutFilmnInfoView(
+                  "Description:",
+                  "${movie.overview}"
+              )
+            ],
+          ),
         ),
-      ),
+        Selector<MovieDetailsBloc, List<CreditVO>>(
+          selector: (context, bloc) => bloc.mCreatorList,
+          builder: (context, creatorList, chid) =>
+              ActorsAndCreatorsSectionView(
+                CREATOR_TITLE,
+                "",
+                creatorList ?? [],
+                seeMoreButtonVisibility: false,
+              ),
+        ),
+        ]),
+    )
+    ],
+    ) : Center(child: CircularProgressIndicator()),
+    ),
+
+
+    ),
+    ),
     );
   }
 
+  void _navigateToMovieDetailsScreen(BuildContext context, int movieId) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MovieDetailsPage(movieId)));
+  }
 }
-
 
 
 class AboutFilmnInfoView extends StatelessWidget {
@@ -130,7 +151,10 @@ class AboutFilmnInfoView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: MediaQuery.of(context).size.width / 4,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width / 4,
           child: Text(
             label,
             style: TextStyle(
@@ -168,7 +192,8 @@ class TrailerSection extends StatelessWidget {
 
 
       children: [
-        MovieTimeAndGenreView(genreList: mMovie.genres?.map((genre) => genre.name).toList()),
+        MovieTimeAndGenreView(
+            genreList: mMovie.genres?.map((genre) => genre.name).toList() ?? []),
         SizedBox(
           height: MARGIN_MEDIUM_3,
         ),
@@ -222,9 +247,9 @@ class MovieDetailScreenButtonView extends StatelessWidget {
         ),
         border: (isGhostButton)
             ? Border.all(
-                color: Colors.white,
-                width: 2,
-              )
+          color: Colors.white,
+          width: 2,
+        )
             : null,
       ),
       child: Center(
@@ -249,7 +274,9 @@ class MovieDetailScreenButtonView extends StatelessWidget {
 
 class StoryLineView extends StatelessWidget {
   final String overView;
+
   StoryLineView(this.overView);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -272,7 +299,7 @@ class StoryLineView extends StatelessWidget {
 }
 
 class MovieTimeAndGenreView extends StatelessWidget {
-   MovieTimeAndGenreView({
+  MovieTimeAndGenreView({
     required this.genreList,
   });
 
@@ -282,40 +309,41 @@ class MovieTimeAndGenreView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
 
-      alignment: WrapAlignment.start,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      direction: Axis.horizontal,
+        alignment: WrapAlignment.start,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        direction: Axis.horizontal,
 
 
-      children: _createMovieTimeandGenreWidget()
+        children: _createMovieTimeandGenreWidget()
     );
   }
-    List<Widget>_createMovieTimeandGenreWidget(){
-      List<Widget>widgets = [
+
+  List<Widget> _createMovieTimeandGenreWidget() {
+    List<Widget>widgets = [
+      Icon(
+        Icons.access_time,
+        color: PLAY_BUTTON_COLOR,
+      ),
+      Text(
+        "2h 30mins",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      SizedBox(
+        width: MARGIN_MEDIUM,
+      ),
+    ];
+    widgets.addAll(genreList!.map((genre) => GenreChipView(genre)).toList());
+    widgets.add((
         Icon(
-          Icons.access_time,
-          color: PLAY_BUTTON_COLOR,
-        ),
-        Text(
-          "2h 30mins",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(
-          width: MARGIN_MEDIUM,
-        ),
-      ];
-      widgets.addAll(genreList!.map((genre)=>GenreChipView(genre)).toList());
-      widgets.add((
-          Icon(
-            Icons.favorite_border,
-            color: Colors.white,
-          )
-      ),);
-      return widgets;
-    }
+          Icons.favorite_border,
+          color: Colors.white,
+        )
+    ),);
+    return widgets;
+  }
 
 }
 
@@ -327,29 +355,30 @@ class GenreChipView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
-      Chip(
-        backgroundColor: MOVIE_DETAILS_SCREEN_CHIP_BACKGROUND_COLOR,
-        label: Text(
-          genreText,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          Chip(
+            backgroundColor: MOVIE_DETAILS_SCREEN_CHIP_BACKGROUND_COLOR,
+            label: Text(
+              genreText,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
-      ),
-      SizedBox(
-        width: MARGIN_MEDIUM,
-      )
-    ]);
+          SizedBox(
+            width: MARGIN_MEDIUM,
+          )
+        ]);
   }
 }
 
 class MovieDetailSliverAppbarView extends StatelessWidget {
   final Function onTapBack;
   final MovieVO mMovie;
-  MovieDetailSliverAppbarView(this.onTapBack,this.mMovie);
+
+  MovieDetailSliverAppbarView(this.onTapBack, this.mMovie);
 
   @override
   Widget build(BuildContext context) {
@@ -373,7 +402,7 @@ class MovieDetailSliverAppbarView extends StatelessWidget {
                 left: MARGIN_MEDIUM_2,
               ),
               child: BackButtonView(
-                () => onTapBack(),
+                    () => onTapBack(),
               ),
             ),
           ),
@@ -405,7 +434,9 @@ class MovieDetailSliverAppbarView extends StatelessWidget {
 
 class MovieDetailsAppbarInfoView extends StatelessWidget {
   final MovieVO mMovie;
+
   MovieDetailsAppbarInfoView(this.mMovie);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -414,7 +445,7 @@ class MovieDetailsAppbarInfoView extends StatelessWidget {
       children: [
         Row(
           children: [
-            MovieDetailsYearView(mMovie.releaseDate.substring(0,4)),
+            MovieDetailsYearView(mMovie.releaseDate.substring(0, 4)),
             Spacer(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -462,9 +493,9 @@ class MovieDetailsAppbarInfoView extends StatelessWidget {
 
 class MovieDetailsYearView extends StatelessWidget {
   final String releaseDate;
-  MovieDetailsYearView(
-      this.releaseDate
-      );
+
+  MovieDetailsYearView(this.releaseDate);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -532,9 +563,9 @@ class BackButtonView extends StatelessWidget {
 
 class MovieDetailsAppbarImageView extends StatelessWidget {
   final String movieImage;
-  MovieDetailsAppbarImageView(
-      this.movieImage
-      );
+
+  MovieDetailsAppbarImageView(this.movieImage);
+
   @override
   Widget build(BuildContext context) {
     return Image.network(

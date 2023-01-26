@@ -36,4 +36,6 @@ class ActorVO extends BaseActorVO{
   factory ActorVO.fromJson(Map<String,dynamic>json)=>_$ActorVOFromJson(json);
 
   Map<String,dynamic>toJson()=>_$ActorVOToJson(this);
+
+  List<Object?> get props => [...super.props,adult,id,knownFor,popularity];
 }

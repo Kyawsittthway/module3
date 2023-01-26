@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:module3/data.vos/vos/production_company_vo.dart';
@@ -12,7 +13,7 @@ part 'movie_vo.g.dart';
 
 @JsonSerializable()
 @HiveType(typeId: HIVE_TYPE_ID_MOVIE_VO,adapterName: "MovieVOAdapter")
-class MovieVO{
+class MovieVO extends Equatable{
 
   @JsonKey(name:"adult")
   @HiveField(0)
@@ -167,5 +168,42 @@ class MovieVO{
       this.isNowPlaying,
       this.isPopular,
       this.isTopRated);
+
+  @override
+  // TODO: implement props
+  List<Object?> get props =>[
+    adult,
+    backDropPath,
+    genreIds,
+    belongToCollection,
+    budget,
+    genres,
+    homepage,
+    id,
+    imdbId,
+    originalLanguage,
+    originalTitle,
+    overview,
+    popularity,
+    posterPath,
+    productionCompanies,
+    productionCountries,
+    revenue,
+    runtTime,
+    spokenLanguages,
+    status,
+    tagLine,
+    releaseDate,
+    title,
+    video,
+    voteAverage,
+    voteCount,
+    isNowPlaying,
+    isPopular,
+    isTopRated
+  ];
+
+
+
 }
 

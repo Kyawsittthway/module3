@@ -78,5 +78,18 @@ class CreditVO extends BaseActorVO{
   bool isCreator(){
     return knownForDepartment != KNOWN_FOR_DEPARTMENT_ACTING;
   }
+  List<Object?> get props => [
+    ...super.props,
+    adult,
+    gender,
+    id,
+    knownForDepartment,
+    originalName,
+    popularity,
+    castId,
+    character,
+    creditId,
+    order,
+  ];
 }
  const String KNOWN_FOR_DEPARTMENT_ACTING = "Acting";

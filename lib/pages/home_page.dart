@@ -9,6 +9,7 @@ import 'package:module3/resources/strings.dart';
 import 'package:module3/viewitems/movie_view.dart';
 import 'package:module3/viewitems/showcase_view.dart';
 import 'package:module3/widgets/see_more_text.dart';
+import 'package:module3/widgets/title_and_horizontal_movie_list_view.dart';
 import 'package:module3/widgets/title_text.dart';
 import 'package:module3/widgets/title_text_with_see_more_view.dart';
 import 'package:provider/provider.dart';
@@ -58,10 +59,16 @@ class HomePage extends StatelessWidget {
                   Selector<HomeBloc, List<MovieVO>>(
                     selector: (context, bloc) => bloc.mPopularMoviesList,
                     builder: (context, popularMovieList, child) =>
-                        BestPopularMovieAndSerialSectionView(
+                        TitleAndHorizontalMovieListView(
                       (movieId) =>
                           _navigateToMovieDetailsScreen(context, movieId),
                       popularMovieList,
+                      onListEndReached: () {
+                        var bloc =
+                            Provider.of<HomeBloc>(context, listen: false);
+                        bloc.onNowPlayingMovieListEndReached();
+                      },
+                      title: MAIN_SCRREN_BEST_POPULAR_MOVIES_AND_SERIALS,
                     ),
                     // child: BestPopularMovieAndSerialSectionView(
                     //     (movieId) => _navigateToMovieDetailsScreen(
